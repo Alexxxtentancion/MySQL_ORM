@@ -56,7 +56,7 @@ class Manage:
         if len(tuple) == 0:
             raise DoesNotExist("Object does not exist in {}".format(self._table_name))
         else:
-            return res
+            return [self.model_cls(**dict(zip([i[0] for i in self.cur.description], tuple[i]))) for i in range(len(tuple))]
 
     def get(self, **kwargs):
         query = 'SELECT * FROM {} WHERE {}'.format(self._table_name,

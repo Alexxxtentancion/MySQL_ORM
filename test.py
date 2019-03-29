@@ -18,5 +18,5 @@ class Man(Author):
     class Meta:
         table_name = 'core_user'
 
-a = Author.objects.get(id=4)
+a = Author.objects.all()
 print(a)
