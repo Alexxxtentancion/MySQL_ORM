@@ -25,18 +25,11 @@ class ModelMeta(type):
                       if isinstance(v, Field)}
 
         namespace['_fields'] = fields
-        # namespace['_table_name'] = meta.table_name
         return super().__new__(mcs, name, bases, namespace)
 
 
 class Manage:
     def __init__(self):
-        # self.conn = cymysql.connect(host='127.0.0.1',
-        #                             port=3306,
-        #                             user='root',
-        #                             passwd='12345',
-        #                             db='library')
-        # self.cur = conn.cursor()
         self.model_cls = None
 
     def __get__(self, instance, owner):
@@ -94,12 +87,6 @@ class Model(metaclass=ModelMeta):
     objects = Manage()
 
     def __init__(self, *_, **kwargs):
-        # self.conn = cymysql.connect(host='127.0.0.1',
-        #                             port=3306,
-        #                             user='root',
-        #                             passwd='12345',
-        #                             db='library')
-        # self.cur = self.conn.cursor()
         self.model_cls = None
         setattr(self, 'id', kwargs.get('id'))
         for field_name, field in self._fields.items():
@@ -130,7 +117,6 @@ class Model(metaclass=ModelMeta):
 
     def save(self):
         dict_t = {}
-        print(self.__dict__)
         for field_name, field in self._fields.items():
             if getattr(self, field_name) is not None:
                 dict_t[field_name] = getattr(self, field_name)
