@@ -63,6 +63,15 @@ class Database:
             col_vals = ["{}='{}'".format(x, y) for x, y in cond.items()]
             col_vals = (",".join(col_vals))
             return query.format(table,col_vals,id)
+        elif query.startswith('CREATE TABLE'):
+            par_type_lst = ["{} {}".format(x, y) for x, y in cond.items()]
+            par_type_lst = (",".join(par_type_lst))
+            table_name = table.__name__
+            return query.format(table_name,par_type_lst )
+
+
+
+
 
 
 

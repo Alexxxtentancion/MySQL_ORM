@@ -2,36 +2,16 @@ from orm import *
 from time import time
 class Author(Model):
     # id = IntField()
-    first_name = StringField()
-    patronymic = StringField()
-    last_name = StringField()
-    country = StringField()
-    date_of_birth = DateField()
-
-    class Meta:
-        table_name = 'core_user'
+    first_name = StringField(blank=True)
+    patronymic = StringField(blank=True)
+    last_name = StringField(blank=True)
+    country = StringField(blank=True)
+    _float = FloatField(blank=True)
+    date_of_birth = DateField(blank=True)
 
 
-class Man(Author):
-    sex = StringField()
+Author.create_table()
+a = Author(first_name="Иван",last_name="Петров",_float = 3.0,date_of_birth = "2000-03-13")
+a.save()
 
-    class Meta:
-        table_name = 'core_user'
-#
-# a = Author.objects.get(id=237)
-# print(a)
-# print(a.__dict__)
-# #
 
-#
-# objg = Author.objects.get(first_name='Фёдор',patronymic = 'Михайлович')
-# print(objg)
-#
-# cr = Author.objects.create(first_name='Афанасий',last_name='Павлов')
-# obj = Author.objects.get(id=3)
-# obj.date_of_birth=[1998,3,3]
-# print(getattr(Author,'table_name'))
-# obj.save()
-# print(Author.objects.all())
-objx = Author(first_name='Илья',date_of_birth='1997-05-5')
-objx.save()

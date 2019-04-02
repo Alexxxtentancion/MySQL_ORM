@@ -1,4 +1,6 @@
-from connection import Database
+import warnings
+
+from db import Database
 from fields import *
 
 db = Database(name='library')
@@ -10,9 +12,10 @@ class ModelMeta(type):
             return super().__new__(mcs, name, bases, namespace)
         meta = namespace.get('Meta')
         if meta is None:
-            raise ValueError('meta is none')
-        if not hasattr(meta, 'table_name'):
-            raise ValueError('table_name is empty')
+            namespace['_table_name'] = namespace['__qualname__']
+            warnings.warn("Meta is None", Warning)
+        else:
+            namespace['_table_name'] = meta.table_name
 
         if bases[0] != Model:
             fields = {**bases[0]._fields, **{k: v for k, v in namespace.items()
@@ -22,7 +25,7 @@ class ModelMeta(type):
                       if isinstance(v, Field)}
 
         namespace['_fields'] = fields
-        namespace['_table_name'] = meta.table_name
+        # namespace['_table_name'] = meta.table_name
         return super().__new__(mcs, name, bases, namespace)
 
 
@@ -71,14 +74,14 @@ class Manage:
 
     def create(self, **kwargs):
         query = 'INSERT INTO {} ({}) VALUES ({})'
-        create_query = db.query_constructor(query,self._table_name,kwargs)
+        create_query = db.query_constructor(query, self._table_name, kwargs)
         db.execute(create_query)
         db.commit()
         return db.fetchone()
 
     def delete(self, id):
         query = 'DELETE FROM {} WHERE id="{}"'
-        delete_query = db.query_constructor(query,self._table_name,id)
+        delete_query = db.query_constructor(query, self._table_name, id)
         db.execute(delete_query)
         db.commit()
         return "OK"
@@ -102,9 +105,22 @@ class Model(metaclass=ModelMeta):
         for field_name, field in self._fields.items():
             value = field.validate(kwargs.get(field_name))
             setattr(self, field_name, value)
-    def create_table(self,model):
-        return self.model_cls
 
+    @classmethod
+    def create_table(cls):
+        sql_types = {}
+        for x, y in cls._fields.items():
+            if isinstance(y, Field):
+                sql_types[x] = y.dbtype
+                if y.blank:
+                    sql_types[x] += " NULL"
+                else:
+                    sql_types[x] += "NOT NULL"
+        query = "CREATE TABLE IF NOT EXISTS {} (id INT AUTO_INCREMENT, {}, PRIMARY KEY (id));"
+        create_table_query = db.query_constructor(query, cls, sql_types)
+        print(create_table_query)
+        db.execute(create_table_query)
+        db.commit()
 
     def delete(self):
         query = 'DELETE FROM {} WHERE id={}'.format(self._table_name, self.id)
@@ -120,13 +136,13 @@ class Model(metaclass=ModelMeta):
                 dict_t[field_name] = getattr(self, field_name)
         if self.__dict__.get('id'):
             query = 'UPDATE {} SET {} WHERE id={};'
-            update_query = db.query_constructor(query,self._table_name,dict_t,self.id)
+            update_query = db.query_constructor(query, self._table_name, dict_t, self.id)
             print(update_query)
-            # db.execute(update_query)
-            # db.commit()
+            db.execute(update_query)
+            db.commit()
         else:
             query = 'INSERT INTO {} ({}) VALUES ({});'
-            create_query = db.query_constructor(query,self._table_name,dict_t)
+            create_query = db.query_constructor(query, self._table_name, dict_t)
             db.execute(create_query)
             db.commit()
             db.execute('select last_insert_id();')

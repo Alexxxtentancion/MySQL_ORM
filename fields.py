@@ -4,8 +4,10 @@ from exceptions import *
 
 
 class Field:
-    def __init__(self, f_type, required=True, default=None):
+    def __init__(self, f_type, blank=False, dbtype=None, required=True, default=None):
         self.f_type = f_type
+        self.blank = blank
+        self.dbtype = dbtype
         self.required = required
         self.default = default
 
@@ -27,25 +29,25 @@ class Field:
 
 
 class IntField(Field):
-    def __init__(self, required=False, default=None):
-        super().__init__(int, required, default)
+    def __init__(self, blank=False, dbtype="INT", required=False, default=None):
+        super().__init__(int, blank, dbtype, required, default)
 
 
 class StringField(Field):
-    def __init__(self, required=False, default=None):
-        super().__init__(str, required, default)
+    def __init__(self, blank=False, dbtype="VARCHAR(255)", required=False, default=None):
+        super().__init__(str, blank, dbtype, required, default)
 
 
 class DateField(Field):
-    def __init__(self, required=False, default=None):
-        super().__init__(datetime.date, required, default)
+    def __init__(self, blank=False, dbtype="DATE", required=False, default=None):
+        super().__init__(datetime.date, blank, dbtype, required, default)
 
 
 class FloatField(Field):
-    def __init__(self, required=False, default=None):
-        super().__init__(float, required, default)
+    def __init__(self, blank=False, dbtype="FLOAT", required=False, default=None):
+        super().__init__(float, blank, dbtype, required, default)
 
 
 class BooleanField(Field):
-    def __init__(self, required=False, default=None):
-        super().__init__(bool, required, default)
+    def __init__(self, blank=False, dbtype="BOOL", required=False, default=None):
+        super().__init__(bool, blank, dbtype, required, default)
